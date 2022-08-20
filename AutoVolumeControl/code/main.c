@@ -1,5 +1,7 @@
 #include "main.h"
 
+const int MAX_SOUND_RATE = 3;
+
 void SetAlsaMasterVolume(long volume)
 {
     long min, max;
@@ -69,78 +71,118 @@ void *Average(void *avg)
     pthread_exit(avg);
 }
 
+int CheckIfEarphonePlugged()
+{
+    char wanted_input[] = 
+    "analog-output-headphones: Headphones (priority 9900, latency offset 0 usec, available: yes)";
+
+    char output_from_alsa[256]; 
+    
+    system("pacmd list-cards > jack_info.txt");
+
+    FILE *jack_info_file = fopen("jack_info.txt", "r");
+
+    if (NULL == jack_info_file)
+    {
+        fclose(jack_info_file);
+        perror("Error opening jack_info.txt");
+    }
+
+   
+    while(fgets(output_from_alsa, sizeof(output_from_alsa), jack_info_file))
+    {
+        if (strstr(output_from_alsa, wanted_input))
+        {
+            fclose(jack_info_file);
+            return 1;
+        }
+    }
+    
+    fclose(jack_info_file);
+    return 0;
+
+}
+long CheckAvgFirstTime()
+{
+    /*check sound for three times - 
+    write down how low/high was the sound to the user
+    and return the avg, as the first indecation for the system's sound
+    (should be between 0-100)*/
+    /*TODO - solve how to record the the avg, so next time user can just run the program*/
+    /*laster on - user can make a new profile for another user/ changes their's*/
+    long rating = 0;
+    char *user_input = (char *)malloc(sizeof(char) * 10);
+    printf("Rate the following sounds from 1 to 5, how loud they were:\n");
+    printf("1 - Very quiet\n");
+    printf("2 - Quiet\n");
+    printf("3 - Normal\n");
+    printf("4 - Loud\n");
+    printf("5 - Very loud\n");
+    printf("\n");
+
+    for(int i = 0; i < MAX_SOUND_RATE; i++)
+    {
+        printf("Sound %d: ", i+1);
+        sleep(1); /*will play here the sound and at the end will give the option to answer*/
+        printf("\n");
+        printf("Please rate the sound: ");
+        fgets(user_input, sizeof(rating), stdin); /*add protection for numbers between 1-5 only*/
+        rating += atoi(user_input);
+    }
+    /*if too high/ too low, run the test again until you get a better avg, then pass it to the set master*/
+    
+    /*keep user_input to a file, so next time it can be reclaimed*/
+   
+    free(user_input);
+    return (rating / MAX_SOUND_RATE) * 10;
+}
 /*do I really need to use long?*/
 /*later will turn to the user profiling*/
 long UserPrompt()
 {
     char user_input[10] = {0};
-    long user_volume = 0;
+    /* long user_volume = 0; */
     printf("AutoVolumeControl\n");
-    /* do
+    printf("\n");
+
+    /*check if user input already exists, if no - then check if earphones are plugged and everything../*/
+
+    if (0 == CheckIfEarphonePlugged())
     {
-        printf("Enter a volume level (0-100): ");
-        fgets(user_input, sizeof(user_input), stdin);
-        user_volume = atoi(user_input);
-    }while(0 > user_volume || 100 < user_volume || user_input[0] == '\n' ); */
-    
-    return user_volume;
-}
-/*how to change the volume, so it fit's the users, not only in the beggining...*/
-/* void SoundLevelBeggining(long user_volume)
-{
-    float current_level = GetLevel();
-    if (current_level != user_volume)
-    {
-        SetAlsaMasterVolume(user_volume);
+        printf("Please plug in your earphone and run again.\n");
+        return 0; /*is this the right method?*/
     }
 
-} */
+    return CheckAvgFirstTime();
+
+}
 
 void *ProgramRun(void *arg)
 {
     pthread_t avg_thread;
-
+    
     long user_volume = UserPrompt();
-    long average = 0.0;
+    /* long average = 0.0; */
+    printf("Running...");
+    while(1)
+    {
+        /*bug : if volume is at 0, it doesn't move*/
+        SetAlsaMasterVolume(user_volume);
+    }
 
-    SetAlsaMasterVolume(user_volume);
     /*might wanna put a flag in here, so user can stop whenever?*/
     /*how the progrsm can remember user's preferences?*/
     /*if program is killed in the middle, accident...whatchdog?*/
-    while(1)
+    /* while(1)
     {
         pthread_create(&avg_thread, NULL, Average, &average);
         average > user_volume ? SetAlsaMasterVolume(average - user_volume) 
                               : SetAlsaMasterVolume(user_volume - average); 
     }
-    pthread_join(avg_thread, NULL);
-}
+    pthread_join(avg_thread, NULL);*/
+} 
 int main()
 {
-
     ProgramRun(NULL);
-
-    /* while(1)
-    {
-        SetAlsaMasterVolume(user_volume);
-    } */
-/* 
-    while(1)
-    {
-        pthread_create (&avg_thread, NULL, Average, &average);
-        if (average > user_volume)
-        {
-            SetAlsaMasterVolume(user_volume);
-        } 
-         else if (average < user_volume)
-        {
-            SetAlsaMasterVolume(user_volume);
-        }
-    }  */
-
-    /* long average = Average();
-    printf("%ld\n", average); */
-    
- /*    pthread_join(avg_thread, NULL); */
-/*     return 0; */
+    return 0;
 } 

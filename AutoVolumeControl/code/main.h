@@ -1,9 +1,10 @@
 #ifndef _AutoVolumeControl_Amit_Nudel__
 #define _AutoVolumeControl_Amit_Nudel__
 
-#include <stdio.h>
-#include <alsa/asoundlib.h>
-#include <pthread.h>
+#include <stdio.h> /*printf*/
+#include <alsa/asoundlib.h> /*alsa*/
+#include <pthread.h>    /*pthread_create, pthread_join*/
+
 
 void *ProgramRun(void *arg);
 long UserPrompt();
