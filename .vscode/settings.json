@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "main.h": "c",
+        "cstdlib": "c",
+        "typeinfo": "c",
+        "cmath": "c"
+    }
+}

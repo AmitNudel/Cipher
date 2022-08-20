@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <alsa/asoundlib.h>
+#include "main.h"
 
 void SetAlsaMasterVolume(long volume)
 {
@@ -59,20 +58,89 @@ static float GetLevel(void)
     return result;
 }
 //on a different thread? 
-long Average()
+void *Average(void *avg)
 {
     float level = 0.0;
     for(int i = 0; i < 10; i++)
     {
         level += GetLevel();
     }
-    return (long)(level / (float)10);
+    *((long*)avg) = (long)(level / (float)10);
+    pthread_exit(avg);
 }
 
+/*do I really need to use long?*/
+/*later will turn to the user profiling*/
+long UserPrompt()
+{
+    char user_input[10] = {0};
+    long user_volume = 0;
+    printf("AutoVolumeControl\n");
+    /* do
+    {
+        printf("Enter a volume level (0-100): ");
+        fgets(user_input, sizeof(user_input), stdin);
+        user_volume = atoi(user_input);
+    }while(0 > user_volume || 100 < user_volume || user_input[0] == '\n' ); */
+    
+    return user_volume;
+}
+/*how to change the volume, so it fit's the users, not only in the beggining...*/
+/* void SoundLevelBeggining(long user_volume)
+{
+    float current_level = GetLevel();
+    if (current_level != user_volume)
+    {
+        SetAlsaMasterVolume(user_volume);
+    }
+
+} */
+
+void *ProgramRun(void *arg)
+{
+    pthread_t avg_thread;
+
+    long user_volume = UserPrompt();
+    long average = 0.0;
+
+    SetAlsaMasterVolume(user_volume);
+    /*might wanna put a flag in here, so user can stop whenever?*/
+    /*how the progrsm can remember user's preferences?*/
+    /*if program is killed in the middle, accident...whatchdog?*/
+    while(1)
+    {
+        pthread_create(&avg_thread, NULL, Average, &average);
+        average > user_volume ? SetAlsaMasterVolume(average - user_volume) 
+                              : SetAlsaMasterVolume(user_volume - average); 
+    }
+    pthread_join(avg_thread, NULL);
+}
 int main()
 {
-    long average = Average();
-    printf("%ld\n", average);
-    SetAlsaMasterVolume(average);
-    return 0;
-}
+
+    ProgramRun(NULL);
+
+    /* while(1)
+    {
+        SetAlsaMasterVolume(user_volume);
+    } */
+/* 
+    while(1)
+    {
+        pthread_create (&avg_thread, NULL, Average, &average);
+        if (average > user_volume)
+        {
+            SetAlsaMasterVolume(user_volume);
+        } 
+         else if (average < user_volume)
+        {
+            SetAlsaMasterVolume(user_volume);
+        }
+    }  */
+
+    /* long average = Average();
+    printf("%ld\n", average); */
+    
+ /*    pthread_join(avg_thread, NULL); */
+/*     return 0; */
+} 
