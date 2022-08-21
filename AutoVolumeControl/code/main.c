@@ -1,7 +1,7 @@
 #include "main.h"
 
 const int MAX_SOUND_RATE = 3;
-const char USER_FILE[] = "/home/myth/Desktop/'my projects'/AutoVolumeControl/user_output/user_profile_1.txt";
+/* const char USER_FILE[] = "/home/myth/Desktop/'my projects'/AutoVolumeControl/user_output/user_profile_1.txt"; */
 const int BASIC_BUFFER_SIZE = 256;
 
 void SetAlsaMasterVolume(long volume)
@@ -33,42 +33,42 @@ static float GetAmplitudeLevel(void)
 {
     float result = 0.0f;
     snd_pcm_t* waveform = NULL;
+    short current_samples_buffer[BASIC_BUFFER_SIZE] = {0};
 
-    // Open and initialize a waveform
-    if (snd_pcm_open (&waveform, "default",
-        SND_PCM_STREAM_PLAYBACK, 0) != 0)
-        return 0;
-
-    // Set the hardware parameters
-    if (!snd_pcm_set_params (waveform, SND_PCM_FORMAT_S16_LE,
-        SND_PCM_ACCESS_RW_INTERLEAVED, 2, 48000, 1, 0))
+    /*Open and intialize waveform*/
+    if (0 != snd_pcm_open(&waveform, "default",
+        SND_PCM_STREAM_PLAYBACK, 0))
     {
-        // Read current samples
-        short buffer[BASIC_BUFFER_SIZE];
-        if (snd_pcm_readi (waveform, buffer, 128) == 128)
-        {
-            // Compute the maximum peak value
-            for (int i = 0; i < BASIC_BUFFER_SIZE; ++i)
-            {
-                // Substitute better algorithm here if needed
-                float s = buffer[i] / 32768.0f;
-                if (s < 0) 
-                {
-                    s *= -1;
-                }
+        printf("Failed to open and initialize waveform\n");
+        return result;
+    }
 
-                if (result < s) 
-                {
-                    result = s;
-                }
+    /*Set the hardware parameters*/
+    if (!snd_pcm_set_params (waveform, SND_PCM_FORMAT_S16_LE,
+        SND_PCM_ACCESS_RW_INTERLEAVED, 2, 48000, 1, 0) &&
+        128 == snd_pcm_readi(waveform, current_samples_buffer, 128))
+    { 
+        /*Compute the maximum peak value*/
+        for (int i = 0; i < BASIC_BUFFER_SIZE; ++i)
+        {
+            float sound = current_samples_buffer[i] / 32768.0f;
+            if (sound < 0) 
+            {
+                sound *= -1;
+            }
+
+            if (result < sound) 
+            {
+                result = sound;
             }
         }
+        
     }
     snd_pcm_close(waveform);
     return result;
 }
 
-//on a different thread? 
+/*on a different thread? */
 void *Average(void *avg)
 {
     float level = 0.0;
@@ -177,7 +177,7 @@ long CheckIfUserProfileExists()
 {
     /*file address should't be hardcoded*/
     FILE *user_profile = fopen("/home/myth/Desktop/my_projects/AutoVolumeControl/user_output/user_profile_1.txt", "r");
-    char *user_input = (char *)malloc(sizeof(char) * 10);
+    char *user_input = (char *)malloc(sizeof(char));
 
     if (NULL == user_profile)
     {
@@ -192,9 +192,6 @@ long CheckIfUserProfileExists()
 
 long UserProfiling()
 {
-    printf("AutoVolumeControl\n");
-    printf("\n");
-
     /*check if user input already exists, if no - then check if earphones are plugged and everything..*/
     while(!CheckIfEarphonePlugged())
     {
@@ -210,10 +207,10 @@ void *ProgramRun(void *arg)
 {
     /* pthread_t avg_thread = 0; */
     (void)arg;
-
     long user_volume = UserProfiling();
 
-    printf("Running...");
+    system("clear");
+    printf("Running...\n");
     
     while(1)
     {
@@ -231,9 +228,13 @@ void *ProgramRun(void *arg)
                               : SetAlsaMasterVolume(user_volume - average); 
     }
     pthread_join(avg_thread, NULL);*/
-} 
+}
+
 int main()
 {
+    printf("AutoVolumeControl\n");
+    printf("\n");
+
     ProgramRun(NULL);
     return 0;
 } 

@@ -34,6 +34,7 @@ Future updates:
 * Bug logger
 * User input will be kept in a file, so the user won't need to do the profiling process every time, but will be able to update 
   it, or create a seperate profile for another user.
+* Running the program in the background, and giving an exit option to the user
 
 How to install and run the project:
 ----------------------------------

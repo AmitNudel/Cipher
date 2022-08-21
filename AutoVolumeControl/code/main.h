@@ -4,7 +4,9 @@
 #include <stdio.h> /*printf*/
 #include <alsa/asoundlib.h> /*alsa*/
 #include <pthread.h>    /*pthread_create, pthread_join*/
-
+#include <sys/types.h>
+/* #include <unistd.h>
+ */
 
 void *ProgramRun(void *arg);
 long UserPrompt();
