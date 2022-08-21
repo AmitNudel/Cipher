@@ -27,6 +27,8 @@ void SetAlsaMasterVolume(long volume)
     snd_mixer_selem_set_playback_volume_all(elem, volume * max / 100);
 
     snd_mixer_close(handle);
+    handle = NULL;
+    
 }
 
 static float GetAmplitudeLevel(void)
@@ -86,10 +88,11 @@ int CheckIfEarphonePlugged()
     "analog-output-headphones: Headphones (priority 9900, latency offset 0 usec, available: yes)";
 
     char output_from_alsa[BASIC_BUFFER_SIZE] = {0}; 
-    
-    system("pacmd list-cards > jack_info.txt");
+    int result = 0;
 
-    FILE *jack_info_file = fopen("jack_info.txt", "r");
+    system("pacmd list-cards > /home/myth/Desktop/my_projects/AutoVolumeControl/texts/jack_info.txt");
+
+    FILE *jack_info_file = fopen("/home/myth/Desktop/my_projects/AutoVolumeControl/texts/jack_info.txt", "r");
 
     if (NULL == jack_info_file)
     {
@@ -101,13 +104,12 @@ int CheckIfEarphonePlugged()
     {
         if (strstr(output_from_alsa, wanted_input))
         {
-            fclose(jack_info_file);
-            return 1;
+            result = 1;
         }
     }
     
     fclose(jack_info_file);
-    return 0;
+    return result;
 }
 
 void SaveUserProfile(int rating)
@@ -115,6 +117,7 @@ void SaveUserProfile(int rating)
     /*add in the future option for more users*/
     /*file address should't be hardcoded*/
     FILE *user_profile = fopen("/home/myth/Desktop/my_projects/AutoVolumeControl/user_output/user_profile_1.txt", "w");
+
     if (NULL == user_profile)
     {
         perror("Error opening user_profile.txt");
@@ -135,7 +138,7 @@ void RatingSoundText()
         perror("Error opening rating_sound_text.txt");
         exit(1);
     }
-    while (fgets(rating_sound_text_buffer, sizeof(rating_sound_text_buffer), rating_sound_text))
+    while(fgets(rating_sound_text_buffer, sizeof(rating_sound_text_buffer), rating_sound_text))
     {
         printf("%s", rating_sound_text_buffer);
     }
@@ -150,7 +153,7 @@ long CheckAvgFirstTime()
     (should be between 0-100)*/
     /*laster on - user can make a new profile for another user/ changes their's*/
     long rating = 0;
-    char *user_input = (char *)malloc(sizeof(char) * 10);
+    char *user_input = (char *)malloc(sizeof(char));
     
     RatingSoundText();
     printf("\n");
@@ -171,7 +174,6 @@ long CheckAvgFirstTime()
     return rating;
 }
 /*do I really need to use long?*/
-/*later will turn to the user profiling*/
 
 long CheckIfUserProfileExists()
 {
@@ -186,17 +188,18 @@ long CheckIfUserProfileExists()
     
     fgets(user_input, sizeof(user_input), user_profile);
     fclose(user_profile);
-    return atoi(user_input);
+    long rating = atoi(user_input);
+    free(user_input);
+    return rating;
     /*how do I prevent the user from creating a profile of 0? is it necessery?*/
 }
 
 long UserProfiling()
 {
-    /*check if user input already exists, if no - then check if earphones are plugged and everything..*/
     while(!CheckIfEarphonePlugged())
     {
         printf("Please plug in your headphones\n");
-        sleep(5);
+        sleep(3);
         system("clear");
     }
     long user_profile = CheckIfUserProfileExists();
@@ -205,36 +208,30 @@ long UserProfiling()
 
 void *ProgramRun(void *arg)
 {
-    /* pthread_t avg_thread = 0; */
-    (void)arg;
     long user_volume = UserProfiling();
+    (void)arg;
 
     system("clear");
     printf("Running...\n");
-    
+    SetAlsaMasterVolume(user_volume);
     while(1)
     {
-        /*bug : if volume is at 0, it doesn't move*/
-        SetAlsaMasterVolume(user_volume);
+        long avg = GetAmplitudeLevel();
+        avg > user_volume ? SetAlsaMasterVolume(avg - user_volume) 
+                              : SetAlsaMasterVolume(user_volume - avg); 
     }
-
-    /*might wanna put a flag in here, so user can stop whenever?*/
-    /*how the progrsm can remember user's preferences?*/
-    /*if program is killed in the middle, accident...whatchdog?*/
-    /* while(1)
-    {
-        pthread_create(&avg_thread, NULL, Average, &average);
-        average > user_volume ? SetAlsaMasterVolume(average - user_volume) 
-                              : SetAlsaMasterVolume(user_volume - average); 
-    }
-    pthread_join(avg_thread, NULL);*/
 }
 
 int main()
 {
     printf("AutoVolumeControl\n");
     printf("\n");
-
-    ProgramRun(NULL);
-    return 0;
+/*     startWD();
+ */    
+   /*  while(1)
+    { */
+        ProgramRun(NULL);
+    /* } */
+/*     stopWD();
+ */    return 0;
 } 
