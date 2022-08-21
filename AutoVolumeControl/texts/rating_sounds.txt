@@ -1,0 +1,7 @@
+
+Rate the following sounds from 1 to 5, how loud they were:
+1 - Very quiet
+2 - Quiet
+3 - Normal
+4 - Loud
+5 - Very loud

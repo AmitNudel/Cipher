@@ -20,7 +20,9 @@
 		module-udev-detect.discovered = "1"
 		device.icon_name = "audio-card-pci"
 	profiles:
-		output:hdmi-stereo: Digital Stereo (HDMI) Output (priority 38668, available: unknown)
+		output:hdmi-stereo: Digital Stereo (HDMI) Output (priority 5900, available: no)
+		output:hdmi-surround: Digital Surround 5.1 (HDMI) Output (priority 800, available: no)
+		output:hdmi-surround71: Digital Surround 7.1 (HDMI) Output (priority 800, available: no)
 		output:hdmi-stereo-extra1: Digital Stereo (HDMI 2) Output (priority 5700, available: no)
 		output:hdmi-surround-extra1: Digital Surround 5.1 (HDMI 2) Output (priority 600, available: no)
 		output:hdmi-surround71-extra1: Digital Surround 7.1 (HDMI 2) Output (priority 600, available: no)
@@ -34,16 +36,11 @@
 		output:hdmi-surround-extra4: Digital Surround 5.1 (HDMI 5) Output (priority 600, available: no)
 		output:hdmi-surround71-extra4: Digital Surround 7.1 (HDMI 5) Output (priority 600, available: no)
 		off: Off (priority 0, available: unknown)
-	active profile: <output:hdmi-stereo>
-	sinks:
-		alsa_output.pci-0000_01_00.1.hdmi-stereo/#5: GP106 High Definition Audio Controller Digital Stereo (HDMI)
-	sources:
-		alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor/#6: Monitor of GP106 High Definition Audio Controller Digital Stereo (HDMI)
+	active profile: <off>
 	ports:
-		hdmi-output-0: HDMI / DisplayPort (priority 5900, latency offset 0 usec, available: yes)
+		hdmi-output-0: HDMI / DisplayPort (priority 5900, latency offset 0 usec, available: no)
 			properties:
 				device.icon_name = "video-display"
-				device.product.name = "SMBX2450"
 		hdmi-output-1: HDMI / DisplayPort 2 (priority 5800, latency offset 0 usec, available: no)
 			properties:
 				device.icon_name = "video-display"
@@ -90,10 +87,10 @@
 		off: Off (priority 0, available: unknown)
 	active profile: <output:analog-stereo+input:analog-stereo>
 	sinks:
-		alsa_output.pci-0000_00_1f.3.analog-stereo/#2: Built-in Audio Analog Stereo
+		alsa_output.pci-0000_00_1f.3.analog-stereo/#1: Built-in Audio Analog Stereo
 	sources:
-		alsa_output.pci-0000_00_1f.3.analog-stereo.monitor/#2: Monitor of Built-in Audio Analog Stereo
-		alsa_input.pci-0000_00_1f.3.analog-stereo/#3: Built-in Audio Analog Stereo
+		alsa_output.pci-0000_00_1f.3.analog-stereo.monitor/#1: Monitor of Built-in Audio Analog Stereo
+		alsa_input.pci-0000_00_1f.3.analog-stereo/#2: Built-in Audio Analog Stereo
 	ports:
 		analog-input-internal-mic: Internal Microphone (priority 8900, latency offset 0 usec, available: unknown)
 			properties:

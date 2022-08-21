@@ -1,12 +1,15 @@
 #include "main.h"
 
 const int MAX_SOUND_RATE = 3;
+const char USER_FILE[] = "/home/myth/Desktop/'my projects'/AutoVolumeControl/user_output/user_profile_1.txt";
+const int BASIC_BUFFER_SIZE = 256;
 
 void SetAlsaMasterVolume(long volume)
 {
-    long min, max;
-    snd_mixer_t *handle;
-    snd_mixer_selem_id_t *sid;
+    long min = 0;
+    long max = 0;
+    snd_mixer_t *handle = NULL;
+    snd_mixer_selem_id_t *sid = NULL;
     const char *card = "default";
     const char *selem_name = "Master";
 
@@ -26,11 +29,10 @@ void SetAlsaMasterVolume(long volume)
     snd_mixer_close(handle);
 }
 
-
-static float GetLevel(void)
+static float GetAmplitudeLevel(void)
 {
     float result = 0.0f;
-    snd_pcm_t* waveform;
+    snd_pcm_t* waveform = NULL;
 
     // Open and initialize a waveform
     if (snd_pcm_open (&waveform, "default",
@@ -42,30 +44,37 @@ static float GetLevel(void)
         SND_PCM_ACCESS_RW_INTERLEAVED, 2, 48000, 1, 0))
     {
         // Read current samples
-        short buffer[256];
+        short buffer[BASIC_BUFFER_SIZE];
         if (snd_pcm_readi (waveform, buffer, 128) == 128)
         {
             // Compute the maximum peak value
-            for (int i = 0; i < 256; ++i)
+            for (int i = 0; i < BASIC_BUFFER_SIZE; ++i)
             {
                 // Substitute better algorithm here if needed
                 float s = buffer[i] / 32768.0f;
-                if (s < 0) s *= -1;
-                if (result < s) result = s;
+                if (s < 0) 
+                {
+                    s *= -1;
+                }
+
+                if (result < s) 
+                {
+                    result = s;
+                }
             }
         }
     }
-
-    snd_pcm_close (waveform);
+    snd_pcm_close(waveform);
     return result;
 }
+
 //on a different thread? 
 void *Average(void *avg)
 {
     float level = 0.0;
     for(int i = 0; i < 10; i++)
     {
-        level += GetLevel();
+        level += GetAmplitudeLevel();
     }
     *((long*)avg) = (long)(level / (float)10);
     pthread_exit(avg);
@@ -76,7 +85,7 @@ int CheckIfEarphonePlugged()
     char wanted_input[] = 
     "analog-output-headphones: Headphones (priority 9900, latency offset 0 usec, available: yes)";
 
-    char output_from_alsa[256]; 
+    char output_from_alsa[BASIC_BUFFER_SIZE] = {0}; 
     
     system("pacmd list-cards > jack_info.txt");
 
@@ -88,7 +97,6 @@ int CheckIfEarphonePlugged()
         perror("Error opening jack_info.txt");
     }
 
-   
     while(fgets(output_from_alsa, sizeof(output_from_alsa), jack_info_file))
     {
         if (strstr(output_from_alsa, wanted_input))
@@ -100,26 +108,52 @@ int CheckIfEarphonePlugged()
     
     fclose(jack_info_file);
     return 0;
-
 }
+
+void SaveUserProfile(int rating)
+{
+    /*add in the future option for more users*/
+    /*file address should't be hardcoded*/
+    FILE *user_profile = fopen("/home/myth/Desktop/my_projects/AutoVolumeControl/user_output/user_profile_1.txt", "w");
+    if (NULL == user_profile)
+    {
+        perror("Error opening user_profile.txt");
+        exit(1);
+    }
+    fprintf(user_profile, "%d", rating);
+    fclose(user_profile);
+}
+
+void RatingSoundText()
+{
+     /*file address should't be hardcoded*/
+    FILE *rating_sound_text = fopen("/home/myth/Desktop/my_projects/AutoVolumeControl/texts/rating_sounds.txt", "r");
+    char rating_sound_text_buffer[BASIC_BUFFER_SIZE] = {0};
+
+    if (NULL == rating_sound_text)
+    {
+        perror("Error opening rating_sound_text.txt");
+        exit(1);
+    }
+    while (fgets(rating_sound_text_buffer, sizeof(rating_sound_text_buffer), rating_sound_text))
+    {
+        printf("%s", rating_sound_text_buffer);
+    }
+    fclose(rating_sound_text);
+}
+
 long CheckAvgFirstTime()
 {
     /*check sound for three times - 
     write down how low/high was the sound to the user
     and return the avg, as the first indecation for the system's sound
     (should be between 0-100)*/
-    /*TODO - solve how to record the the avg, so next time user can just run the program*/
     /*laster on - user can make a new profile for another user/ changes their's*/
     long rating = 0;
     char *user_input = (char *)malloc(sizeof(char) * 10);
-    printf("Rate the following sounds from 1 to 5, how loud they were:\n");
-    printf("1 - Very quiet\n");
-    printf("2 - Quiet\n");
-    printf("3 - Normal\n");
-    printf("4 - Loud\n");
-    printf("5 - Very loud\n");
+    
+    RatingSoundText();
     printf("\n");
-
     for(int i = 0; i < MAX_SOUND_RATE; i++)
     {
         printf("Sound %d: ", i+1);
@@ -130,40 +164,57 @@ long CheckAvgFirstTime()
         rating += atoi(user_input);
     }
     /*if too high/ too low, run the test again until you get a better avg, then pass it to the set master*/
-    
-    /*keep user_input to a file, so next time it can be reclaimed*/
-   
+    rating = (rating / MAX_SOUND_RATE) * 10;
+    SaveUserProfile(rating);
+
     free(user_input);
-    return (rating / MAX_SOUND_RATE) * 10;
+    return rating;
 }
 /*do I really need to use long?*/
 /*later will turn to the user profiling*/
-long UserPrompt()
+
+long CheckIfUserProfileExists()
 {
-    char user_input[10] = {0};
-    /* long user_volume = 0; */
+    /*file address should't be hardcoded*/
+    FILE *user_profile = fopen("/home/myth/Desktop/my_projects/AutoVolumeControl/user_output/user_profile_1.txt", "r");
+    char *user_input = (char *)malloc(sizeof(char) * 10);
+
+    if (NULL == user_profile)
+    {
+        return 0;
+    }
+    
+    fgets(user_input, sizeof(user_input), user_profile);
+    fclose(user_profile);
+    return atoi(user_input);
+    /*how do I prevent the user from creating a profile of 0? is it necessery?*/
+}
+
+long UserProfiling()
+{
     printf("AutoVolumeControl\n");
     printf("\n");
 
-    /*check if user input already exists, if no - then check if earphones are plugged and everything../*/
-
-    if (0 == CheckIfEarphonePlugged())
+    /*check if user input already exists, if no - then check if earphones are plugged and everything..*/
+    while(!CheckIfEarphonePlugged())
     {
-        printf("Please plug in your earphone and run again.\n");
-        return 0; /*is this the right method?*/
+        printf("Please plug in your headphones\n");
+        sleep(5);
+        system("clear");
     }
-
-    return CheckAvgFirstTime();
-
+    long user_profile = CheckIfUserProfileExists();
+    return 0 == user_profile ? CheckAvgFirstTime() : user_profile;
 }
 
 void *ProgramRun(void *arg)
 {
-    pthread_t avg_thread;
-    
-    long user_volume = UserPrompt();
-    /* long average = 0.0; */
+    /* pthread_t avg_thread = 0; */
+    (void)arg;
+
+    long user_volume = UserProfiling();
+
     printf("Running...");
+    
     while(1)
     {
         /*bug : if volume is at 0, it doesn't move*/
