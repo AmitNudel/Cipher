@@ -1,7 +1,9 @@
 #include "main.h"
 
 const int MAX_SOUND_RATE = 3;
-/* const char USER_FILE[] = "/home/myth/Desktop/'my projects'/AutoVolumeControl/user_output/user_profile_1.txt"; */
+const char *USER_FILE = "/home/myth/Desktop/my_projects/AutoVolumeControl/user_output/user_profile_1.txt";
+const char *JACK_INFO_FILE = "/home/myth/Desktop/my_projects/AutoVolumeControl/texts/jack_info.txt";
+/* setenv("JACK_FILE", "/home/myth/Desktop/my_projects/AutoVolumeControl/texts/jack_info.txt", 1); */
 const int BASIC_BUFFER_SIZE = 256;
 
 void SetAlsaMasterVolume(long volume)
@@ -27,8 +29,7 @@ void SetAlsaMasterVolume(long volume)
     snd_mixer_selem_set_playback_volume_all(elem, volume * max / 100);
 
     snd_mixer_close(handle);
-    handle = NULL;
-    
+    handle = NULL; 
 }
 
 static float GetAmplitudeLevel(void)
@@ -92,7 +93,7 @@ int CheckIfEarphonePlugged()
 
     system("pacmd list-cards > /home/myth/Desktop/my_projects/AutoVolumeControl/texts/jack_info.txt");
 
-    FILE *jack_info_file = fopen("/home/myth/Desktop/my_projects/AutoVolumeControl/texts/jack_info.txt", "r");
+    FILE *jack_info_file = fopen(JACK_INFO_FILE, "r");
 
     if (NULL == jack_info_file)
     {
@@ -178,7 +179,7 @@ long CheckAvgFirstTime()
 long CheckIfUserProfileExists()
 {
     /*file address should't be hardcoded*/
-    FILE *user_profile = fopen("/home/myth/Desktop/my_projects/AutoVolumeControl/user_output/user_profile_1.txt", "r");
+    FILE *user_profile = fopen(USER_FILE, "r");
     char *user_input = (char *)malloc(sizeof(char));
 
     if (NULL == user_profile)
