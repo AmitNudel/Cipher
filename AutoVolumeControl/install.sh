@@ -7,4 +7,4 @@ fi
 
 #make 
 #run
-#gpd11  main.c -o main.o -pthread -lasound
+#gpd11  main.c -o out/main.o -pthread -lasound

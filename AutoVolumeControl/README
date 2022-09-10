@@ -15,16 +15,16 @@
 
 About the project - 
 -----------------
-I found that listening to sound can be quite of a task for me. Playting with the volume started to fill a bit time consuming.
+I found that listening to sound can be quite of a task for me. Playing with the volume started to feel a bit time consuming.
 I wanted to create a program that will be smart enough to control the sound automatically, so I'll be free to do other tasks. 
-The program knows how to recieve audio, check it's amplitude and level it to the user's profile. I learned how to connec and
+The program knows how to recieve audio, check it's amplitude and level it to the user's profile. I learned how to connect and
 use ALSA and modify the master audio output. 
 
 Features:
 --------
 * Setting master volume
 * Get amplitude level
-* Checking if headphones connection
+* Checking if headphones are connected
 * User sound profiling  
 * Feautre users info can be uploaded to hash for fast searching
 

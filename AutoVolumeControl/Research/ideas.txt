@@ -31,3 +31,7 @@ Another feature of PulseAudio is the ability to control volume for separate appl
 
 pavucontrol - can mess with PulseAudio directly
 
+
+60db - human conversation 
+
+new vol = old_vol * profiling/GetAmplitudeLevel (ask Niv)

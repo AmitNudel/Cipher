@@ -1,32 +1,37 @@
-#include "stdlib.h"
+#include <stdio.h>
+#include "main_functions.h"
+#include "tests.h"
+#include "math.h"
 
-#include "main.h"
 
-/* #include "main.c" */
-
-const char url[] = "https://www.youtube.com/watch?v=ndsaoMFz9J4&ab_channel=Markiplier";
-
-void RunningProgram()
+void SoundTest()
 {
-    pthread_t program_run;
+    //play sound 1 -> chck pcm 
+    //play sound 2 -> chck pcm
+    //play sound 3 -> chck pcm
+    //what ar th diffrncs btwn th pcm rsults? chck again, agftr chnaginc th bar to hight/lowr 
     
-    while(1)
-    {
-        pthread_create(&program_run, NULL, ProgramRun, NULL);    
-    }
 }
 
-void PlaySound()
-{
-    char *youtube_video = NULL;
-    asprintf(&youtube_video, "START %s", url);
-    system(youtube_video);
-    free(youtube_video);
 
+void AmplitudeTest()
+{
+    float amplitude = GetAmplitudeLevel();
+    printf("%f\n", amplitude);
+    int dB = FloatTodB(amplitude);
+    printf("dB: %i\n", dB);
+
+    dB = FloatTodB(1000.0);
+    printf("dB: %i\n", dB);
+
+    amplitude = dBToFloat(60);
+    printf("%f\n", amplitude);
+
+    amplitude = dBToFloat(89);
+    printf("%f\n", amplitude);
 }
 
-int main()
+void Tests()
 {
-    PlaySound();
-
+    AmplitudeTest();
 }
