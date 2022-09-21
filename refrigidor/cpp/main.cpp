@@ -1,5 +1,5 @@
 
-#include "refrigirator.hpp"
+#include "refrigirator_abstract.hpp"
 #include "door.hpp"
 #include "light.hpp"
 
@@ -10,7 +10,7 @@ int main()
     Door door;
     Light light;
 
-    RefrigiratorMachine user_ref(door, light);
+    RefrigiratorAbstract user_ref(door, light);
     user_ref.OpenDoor();
     user_ref.ChooseLightingSpeedOnOpeningDoor();
     
