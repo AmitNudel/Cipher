@@ -44,7 +44,7 @@ void Vote_machine::ChangeCandidate(unsigned int vote_id, std::string new_candida
 std::unordered_map<unsigned int, Candidate&>& Vote_machine::CandidateVotesInit()
 {
     //init?
-}
+} 
 
 void Vote_machine::MakeCandidate(std::string cadidate_name)
 {
