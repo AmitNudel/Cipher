@@ -5,12 +5,13 @@
 #include <alsa/asoundlib.h> /*alsa*/
 #include <sys/types.h>
 
-void *ProgramRun(void *arg);
+void ProgramRun();
 void AmplitudeAverage(float *avg);
 void SetAlsaMasterVolume(long volume);
 float GetAmplitudeLevel(void);
-float dBToFloat(int db);
-int FloatTodB(float num_float);
-int CheckIfEarphonePlugged();
+float dBToAmp(int db);
+int AmpTodB(float num_float);
+int IsEarphonePlugged();
 
 #endif /* _AutoVolumeControl_Amit_Nudel_ */
+

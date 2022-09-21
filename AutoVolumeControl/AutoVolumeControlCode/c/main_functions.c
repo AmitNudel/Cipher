@@ -7,16 +7,20 @@
 const char *JACK_INFO_FILE = "/home/myth/Desktop/my_projects/AutoVolumeControl/texts/jack_info.txt";
 
 
-float dBToFloat(int db)
+float dBToAmp(int db)
 {
     return (float)pow(10.0 ,((double)db / 20.0));
 }
 
-int FloatTodB(float num_float)
+
+int AmpTodB(float num_float)
 {
     return (int)log10(num_float) * 20;
 }
 
+/**
+ * @ set computer audio volume to wanted value
+ */
 void SetAlsaMasterVolume(long volume)
 {
     long min = 0;
@@ -26,16 +30,19 @@ void SetAlsaMasterVolume(long volume)
     const char *card = "default";
     const char *selem_name = "Master";
 
+    /*handling the mixer handler and initializing it*/
     snd_mixer_open(&handle, 0);
     snd_mixer_attach(handle, card);
     snd_mixer_selem_register(handle, NULL, NULL);
     snd_mixer_load(handle);
-
+    
+    /*getting id of mixer and setting name*/
     snd_mixer_selem_id_alloca(&sid);
     snd_mixer_selem_id_set_index(sid, 0);
     snd_mixer_selem_id_set_name(sid, selem_name);
     snd_mixer_elem_t* elem = snd_mixer_find_selem(handle, sid);
-
+    
+    /*getting volume range and setting to wanted volume*/
     snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
     snd_mixer_selem_set_playback_volume_all(elem, volume * max / 100);
 
@@ -43,9 +50,11 @@ void SetAlsaMasterVolume(long volume)
     handle = NULL; 
 }
 
+
 float GetAmplitudeLevel(void)
 {
     float result = 0.0f;
+    /*audio stream source*/
     snd_pcm_t* waveform = NULL;
     short current_samples_buffer[BASIC_BUFFER_SIZE] = {0};
 
@@ -83,20 +92,21 @@ float GetAmplitudeLevel(void)
     return result;
 }
 
-/*on a different thread? */
-void AmplitudeAverage(float *avg)
+//do I need outparam here?
+void AmplitudeAverage(float *out_avg)
 {
-    float level = 0.0;
+    float amp_level = 0.0;
     for(int i = 0; i < 10; i++)
     {
-        level += GetAmplitudeLevel();
+        amp_level += GetAmplitudeLevel();
     }
-    *avg = (level / 10.0F);
+    *out_avg = (amp_level / 10.0F);
 
 }
 
-int CheckIfEarphonePlugged()
+int IsEarphonePlugged()
 {
+    /*exact sentence needed*/
     char wanted_input[] = 
     "analog-output-headphones: Headphones (priority 9900, latency offset 0 usec, available: yes)";
 
@@ -113,6 +123,7 @@ int CheckIfEarphonePlugged()
         perror("Error opening jack_info.txt");
     }
 
+    /*jack info file, looking foe the wanted sentece*/
     while(fgets(output_from_alsa, sizeof(output_from_alsa), jack_info_file))
     {
         if (strstr(output_from_alsa, wanted_input))
@@ -126,15 +137,18 @@ int CheckIfEarphonePlugged()
 }
 
 
-void *ProgramRun(void *arg)
+void ProgramRun()
 {
+    /*get rating from user*/
     long user_volume = UserProfiling();
-    (void)arg;
     
     system("clear");
     printf("Running...\n");
+    SetAlsaMasterVolume(user_volume);
     while(1)
     {
-        SetAlsaMasterVolume(user_volume);
+        /*sample current volume*/
+        /*calculate the fix*/
+        /*adjust volume - calculate, and set the user*/
     }
 }

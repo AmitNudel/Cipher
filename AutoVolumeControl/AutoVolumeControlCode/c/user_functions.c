@@ -8,17 +8,19 @@ const char *USER_FILE = "/home/myth/Desktop/my_projects/AutoVolumeControl/user_o
 const char *RATING_SOUND = "/home/myth/Desktop/my_projects/AutoVolumeControl/texts/rating_sounds.txt";
 const int MAX_SOUND_RATE = 3;
 
-
+/**
+ * @ setting user hearing profile
+ */
 long UserProfiling()
 {
-    while(!CheckIfEarphonePlugged())
+    while(!IsEarphonePlugged())
     {
         system("clear");
         printf("Please plug in your headphones\n");
         sleep(3);
     }
-    long user_profile = CheckIfUserProfileExists();
-    return 0 == user_profile ? CheckAvgFirstTime() : user_profile;
+    long user_profile = ReturnUserProfile();
+    return 0 == user_profile ? ReturnAvgFirstTime() : user_profile;
 }
 
 void SaveUserProfile(int rating)
@@ -33,7 +35,10 @@ void SaveUserProfile(int rating)
     fclose(user_profile);
 }
 
-long CheckIfUserProfileExists()
+/**
+ * @ get user profile data from file 
+ */
+long ReturnUserProfile()
 {
     FILE *user_profile = fopen(USER_FILE, "r");
     char *user_input = (char *)malloc(sizeof(char));
@@ -41,7 +46,7 @@ long CheckIfUserProfileExists()
     {
         return 0;
     }
-
+    //
     fgets(user_input, sizeof(user_input), user_profile);
     fclose(user_profile);
     long rating = atoi(user_input);
@@ -49,7 +54,7 @@ long CheckIfUserProfileExists()
     return rating;
 }
 
-void RatingSoundText()
+void PrintRatingSoundText()
 {
     FILE *rating_sound_text = fopen(RATING_SOUND, "r");
     char rating_sound_text_buffer[BASIC_BUFFER_SIZE] = {0};
@@ -66,12 +71,12 @@ void RatingSoundText()
 }
 
 //TODO make better test
-long CheckAvgFirstTime()
+long ReturnAvgFirstTime()
 {
     long rating = 0;
     long avg_rate = 60;
     char *user_input = (char *)malloc(sizeof(char));
-    RatingSoundText();
+    PrintRatingSoundText();
     printf("\n");
     for(int i = 0; i < MAX_SOUND_RATE; i++)
     {

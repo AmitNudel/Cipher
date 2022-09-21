@@ -18,16 +18,16 @@ void AmplitudeTest()
 {
     float amplitude = GetAmplitudeLevel();
     printf("%f\n", amplitude);
-    int dB = FloatTodB(amplitude);
+    int dB = AmpTodB(amplitude);
     printf("dB: %i\n", dB);
 
-    dB = FloatTodB(1000.0);
+    dB = AmpTodB(1000.0);
     printf("dB: %i\n", dB);
 
-    amplitude = dBToFloat(60);
+    amplitude = dBToAmp(60);
     printf("%f\n", amplitude);
 
-    amplitude = dBToFloat(89);
+    amplitude = dBToAmp(89);
     printf("%f\n", amplitude);
 }
 

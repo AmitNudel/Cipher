@@ -4,9 +4,9 @@
 long UserPrompt();
 long UserProfiling();
 void SaveUserProfile(int rating);
-long CheckIfUserProfileExists();
+long ReturnUserProfile();
 void RatingSoundText();
-long CheckAvgFirstTime();
+long ReturnAvgFirstTime();
 
 const int BASIC_BUFFER_SIZE = 256;
 

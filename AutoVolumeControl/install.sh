@@ -5,6 +5,11 @@ if [ -x "$(command dpkg -s libasound2)" ]; then
     sudo apt-get install libasound2-dev
 fi
 
-#make 
-#run
-#gpd11  main.c -o out/main.o -pthread -lasound
+echo "____ _  _ ___ ____    _  _ ____ _    _  _ _  _ ____    ____ ____ _  _ ___ ____ ____ _"
+echo "|__| |  |  |  |  |    |  | |  | |    |  | |\/| |___    |    |  | |\ |  |  |__/ |  | |"
+echo "|  | |__|  |  |__|     \/  |__| |___ |__| |  | |___    |___ |__| | \|  |  |  \ |__| |___"
+echo " "
+
+cd AutoVolumeControlCode/
+make
+

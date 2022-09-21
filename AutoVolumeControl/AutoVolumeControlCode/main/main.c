@@ -6,19 +6,15 @@
 
 int main()
 {
-    #ifdef DEBUG
-    Tests();
-    #else
-        printf("AutoVolumeControl\n");
+    printf("AutoVolumeControl\n");
         printf("\n");
         /*     startWD();
         */    
         /*  while(1)
             { */ 
-        ProgramRun(NULL);
+        ProgramRun();
             /* } */
         /*     stopWD();
         */    
-    #endif
     return 0;
 }

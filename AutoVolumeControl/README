@@ -31,17 +31,24 @@ Features:
 Future updates:
 --------------
 * Adding watchdog
-* On a seperate thread, the program will run an amplitude check, and update the volume accordingly
+* The program will run an amplitude check, and update the volume accordingly
 * Bug logger
 * User input will be kept in a file, so the user won't need to do the profiling process every time, but will be able to update 
   it, or create a seperate profile for another user.
 * Running the program in the background, and giving an exit option to the user
-
+* Add sound files to the profiling function 
+* Friendly user interface.
+ 
 How to install and run the project:
 ----------------------------------
+Give install.sh permissions and run with main.o.
+In order to make the debug file, run the command make debug.o, then run debug.o. 
 
 How to use:
 ----------
+After you run the program for the first time, you will need to enter the wanted volume level in the profiling function.
+Make sure your headphones are connected. 
+Then just let the program run in the background. 
 
 Credits:
 -------
