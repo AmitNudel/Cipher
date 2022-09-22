@@ -78,10 +78,10 @@
 		input:analog-stereo: Analog Stereo Input (priority 32833, available: unknown)
 		output:analog-stereo: Analog Stereo Output (priority 39268, available: unknown)
 		output:analog-stereo+input:analog-stereo: Analog Stereo Duplex (priority 39333, available: unknown)
-		output:analog-surround-21: Analog Surround 2.1 Output (priority 34068, available: unknown)
-		output:analog-surround-21+input:analog-stereo: Analog Surround 2.1 Output + Analog Stereo Input (priority 34133, available: unknown)
-		output:analog-surround-40: Analog Surround 4.0 Output (priority 33968, available: unknown)
-		output:analog-surround-40+input:analog-stereo: Analog Surround 4.0 Output + Analog Stereo Input (priority 34033, available: unknown)
+		output:analog-surround-21: Analog Surround 2.1 Output (priority 1300, available: no)
+		output:analog-surround-21+input:analog-stereo: Analog Surround 2.1 Output + Analog Stereo Input (priority 1365, available: unknown)
+		output:analog-surround-40: Analog Surround 4.0 Output (priority 1200, available: no)
+		output:analog-surround-40+input:analog-stereo: Analog Surround 4.0 Output + Analog Stereo Input (priority 1265, available: unknown)
 		output:iec958-stereo: Digital Stereo (IEC958) Output (priority 38268, available: unknown)
 		output:iec958-stereo+input:analog-stereo: Digital Stereo (IEC958) Output + Analog Stereo Input (priority 38333, available: unknown)
 		off: Off (priority 0, available: unknown)
@@ -98,10 +98,10 @@
 		analog-input-mic: Microphone (priority 8700, latency offset 0 usec, available: no)
 			properties:
 				device.icon_name = "audio-input-microphone"
-		analog-output-speaker: Speakers (priority 10000, latency offset 0 usec, available: unknown)
+		analog-output-speaker: Speakers (priority 10000, latency offset 0 usec, available: no)
 			properties:
 				device.icon_name = "audio-speakers"
-		analog-output-headphones: Headphones (priority 9900, latency offset 0 usec, available: no)
+		analog-output-headphones: Headphones (priority 9900, latency offset 0 usec, available: yes)
 			properties:
 				device.icon_name = "audio-headphones"
 		iec958-stereo-output: Digital Output (S/PDIF) (priority 0, latency offset 0 usec, available: unknown)

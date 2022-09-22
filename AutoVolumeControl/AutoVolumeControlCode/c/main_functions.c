@@ -1,4 +1,5 @@
 #include <math.h> /*log, pow*/
+#include <unistd.h>
 
 #include "main_functions.h"
 #include "user_functions.h"
@@ -7,15 +8,15 @@
 const char *JACK_INFO_FILE = "/home/myth/Desktop/my_projects/AutoVolumeControl/texts/jack_info.txt";
 
 
-float dBToAmp(int db)
+amplitude_level dBToAmp(int db)
 {
     return (float)pow(10.0 ,((double)db / 20.0));
 }
 
 
-int AmpTodB(float num_float)
+volume_level AmpTodB(amplitude_level num_amplitude_level)
 {
-    return (int)log10(num_float) * 20;
+    return (volume_level)log10(num_amplitude_level) * 20;
 }
 
 /**
@@ -51,9 +52,9 @@ void SetAlsaMasterVolume(long volume)
 }
 
 
-float GetAmplitudeLevel(void)
+amplitude_level GetAmplitudeLevel(void)
 {
-    float result = 0.0f;
+    amplitude_level result = 0.0f;
     /*audio stream source*/
     snd_pcm_t* waveform = NULL;
     short current_samples_buffer[BASIC_BUFFER_SIZE] = {0};
@@ -74,8 +75,8 @@ float GetAmplitudeLevel(void)
         /*Compute the maximum peak value*/
         for (int i = 0; i < BASIC_BUFFER_SIZE; ++i)
         {
-            // float sound = current_samples_buffer[i] / 32768.0f;
-            float sound = current_samples_buffer[i];
+            // amplitude_level sound = current_samples_buffer[i] / 32768.0f;
+            amplitude_level sound = current_samples_buffer[i];
             if (sound < 0) 
             {
                 sound *= -1;
@@ -93,14 +94,14 @@ float GetAmplitudeLevel(void)
 }
 
 //do I need outparam here?
-void AmplitudeAverage(float *out_avg)
+amplitude_level AmplitudeAverage()
 {
-    float amp_level = 0.0;
+    amplitude_level amp_level = 0.0;
     for(int i = 0; i < 10; i++)
     {
         amp_level += GetAmplitudeLevel();
     }
-    *out_avg = (amp_level / 10.0F);
+    return (amp_level / 10.0F);
 
 }
 
@@ -150,5 +151,10 @@ void ProgramRun()
         /*sample current volume*/
         /*calculate the fix*/
         /*adjust volume - calculate, and set the user*/
+        usleep(70000);
+        amplitude_level current_level = GetAmplitudeLevel();
+        amplitude_level gap = current_level - user_volume;
+        gap > user_volume ? SetAlsaMasterVolume(AmpTodB(gap - user_volume)) : SetAlsaMasterVolume(AmpTodB(gap + user_volume));
+        
     }
 }

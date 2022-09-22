@@ -11,7 +11,7 @@ const int MAX_SOUND_RATE = 3;
 /**
  * @ setting user hearing profile
  */
-long UserProfiling()
+volume_level UserProfiling()
 {
     while(!IsEarphonePlugged())
     {
@@ -19,11 +19,11 @@ long UserProfiling()
         printf("Please plug in your headphones\n");
         sleep(3);
     }
-    long user_profile = ReturnUserProfile();
+    volume_level user_profile = ReturnUserProfile();
     return 0 == user_profile ? ReturnAvgFirstTime() : user_profile;
 }
 
-void SaveUserProfile(int rating)
+void SaveUserProfile(volume_level rating)
 {
     FILE *user_profile = fopen(USER_FILE, "w");
     if (NULL == user_profile)
@@ -31,14 +31,14 @@ void SaveUserProfile(int rating)
         perror("Error opening user_profile.txt");
         exit(1);
     }
-    fprintf(user_profile, "%d", rating);
+    fprintf(user_profile, "%ld", rating);
     fclose(user_profile);
 }
 
 /**
  * @ get user profile data from file 
  */
-long ReturnUserProfile()
+volume_level ReturnUserProfile()
 {
     FILE *user_profile = fopen(USER_FILE, "r");
     char *user_input = (char *)malloc(sizeof(char));
@@ -49,7 +49,7 @@ long ReturnUserProfile()
     //
     fgets(user_input, sizeof(user_input), user_profile);
     fclose(user_profile);
-    long rating = atoi(user_input);
+    volume_level rating = atoi(user_input);
     free(user_input);
     return rating;
 }
@@ -71,10 +71,10 @@ void PrintRatingSoundText()
 }
 
 //TODO make better test
-long ReturnAvgFirstTime()
+volume_level ReturnAvgFirstTime()
 {
-    long rating = 0;
-    long avg_rate = 60;
+    volume_level rating = 0;
+    volume_level avg_rate = 60;
     char *user_input = (char *)malloc(sizeof(char));
     PrintRatingSoundText();
     printf("\n");

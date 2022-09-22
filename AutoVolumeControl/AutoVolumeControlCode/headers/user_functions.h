@@ -1,12 +1,14 @@
 #ifndef _USER__
 #define _USER__
 
-long UserPrompt();
-long UserProfiling();
-void SaveUserProfile(int rating);
-long ReturnUserProfile();
+typedef long volume_level;
+
+volume_level UserPrompt();
+volume_level UserProfiling();
+void SaveUserProfile(volume_level rating);
+volume_level ReturnUserProfile();
 void RatingSoundText();
-long ReturnAvgFirstTime();
+volume_level ReturnAvgFirstTime();
 
 const int BASIC_BUFFER_SIZE = 256;
 

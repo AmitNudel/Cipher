@@ -50,6 +50,10 @@ After you run the program for the first time, you will need to enter the wanted 
 Make sure your headphones are connected. 
 Then just let the program run in the background. 
 
+Bugs:
+----
+1. The GetAmplitudeLevel(), in a while loop, makes the volume menu to flicker. 
+
 Credits:
 -------
 
